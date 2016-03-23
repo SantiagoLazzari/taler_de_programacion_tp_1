@@ -45,14 +45,16 @@ void mainWithClientMode() {
 
   socket_t socket;
 
-  char *message_receive = "hola";
+  char request[20];
+
+  snprintf(request, 20, "Client Sending Data\n");
 
   socket_init(&socket, "3001", "localhost");
   socket_connect(&socket);
 
-  socket_send(&socket, message_receive, strlen(message_receive));
+  socket_send(&socket, request, 20);
 
-  //socket_destroy(&socket);
+  // socket_destroy(&socket);
 }
 
 void mainWithServerMode() {
@@ -60,8 +62,6 @@ void mainWithServerMode() {
 
   socket_t accept_socket;
   socket_t peerskt;
-
-
 
   char message_receive[4];
 
