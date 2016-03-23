@@ -15,7 +15,7 @@ typedef struct checksum {
 
 } checksum_t;
 
-int checksum_init(checksum_t *chechsum, char *string, int size);
+int checksum_init(checksum_t *self, char *string, int size);
 int checksum_rolling_init(checksum_t *self, checksum_t *rolling_checksum, char *string);
 
 #endif

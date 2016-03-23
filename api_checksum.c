@@ -28,19 +28,8 @@ unsigned long higher(char *string, int size) {
   return higher;
 }
 
-// unsigned long rolling_checksum(unsigned long low, unsigned long high, char previous_character, char next_character, int size) {
-//   printf("previous %c, new %c\n", previous_character, next_character);
-//
-//   unsigned long new_low = (low - previous_character + next_character) % M;
-//   unsigned long new_high = (high - size * previous_character + new_low) % M;
-//
-//   return checksum(new_low, new_high);
-// }
-
 int checksum_rolling_init(checksum_t *self, checksum_t *rolling_checksum, char *string) {
   checksum_init(rolling_checksum, string, self->size);
-
-  printf("previous %c, new %c\n", self->string[0], string[self->size - 1]);
 
   unsigned long new_low = (self->low - self->string[0] + string[self->size -1]) % M;
   unsigned long new_high = (self->high - self->size * self->string[0] + new_low) % M;
