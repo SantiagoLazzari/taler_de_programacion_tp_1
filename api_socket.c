@@ -18,8 +18,6 @@ int socket_init(socket_t *self, char *port, char *host) {
   struct addrinfo hints;
   struct addrinfo *addrinfo;
 
-  int skt = 0;
-
   memset(&hints, 0, sizeof(struct addrinfo));
   hints.ai_family = AF_INET;       /* IPv4 (or AF_INET6 for IPv6)     */
   hints.ai_socktype = SOCK_STREAM; /* TCP  (or SOCK_DGRAM for UDP)    */
@@ -34,14 +32,14 @@ int socket_init(socket_t *self, char *port, char *host) {
 
   self->skt = socket(addrinfo->ai_family, addrinfo->ai_socktype, addrinfo->ai_protocol);
 
-  if (skt == -1) {
+  if (self->skt == -1) {
      printf("Error: %s\n", strerror(errno));
      freeaddrinfo(addrinfo);
      return 1;
   }
 
   self->addrinfo = addrinfo;
-
+  printf("llegue al get addrinfo");
   return 0;
 }
 
@@ -84,33 +82,6 @@ int socket_send(socket_t *self, char *buf, int size) {
   }
 
   return 0;
-}
-
-int recv_message(int skt, char *buf, int size) {
-   int received = 0;
-   int s = 0;
-   bool is_the_socket_valid = true;
-
-   while (received < size && is_the_socket_valid) {
-      s = recv(skt, &buf[received], size-received, MSG_NOSIGNAL);
-
-      if (s == 0) { // nos cerraron el socket :(
-         is_the_socket_valid = false;
-      }
-      else if (s < 0) { // hubo un error >(
-         is_the_socket_valid = false;
-      }
-      else {
-         received += s;
-      }
-   }
-
-   if (is_the_socket_valid) {
-      return received;
-   }
-   else {
-      return -1;
-   }
 }
 
 int socket_receive(socket_t *self, char *buf, int size) {

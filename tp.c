@@ -33,7 +33,7 @@ si se ejecuta el programa en modo cliente
 #define PROGRAM_MODE_SERVER_ARGUMENTS_COUNT 3
 #define STRING_1_IS_EQUAL_TO_STRING_2(string1, string2) !strcmp(string1, string2)
 
-#define PROGRAM_MODE_CLIENT_ARGUMENTS_COUNT 8
+#define PROGRAM_MODE_CLIENT_ARGUMENTS_COUNT 3
 
 #define LARGO_FILE 20
 #define POS_NOMBRE_ARCHIVO 1
@@ -45,36 +45,37 @@ void mainWithClientMode() {
 
   socket_t socket;
 
-  char *message_send = "hola como estas";
+  char *message_receive = "hola";
 
-  char message_receive[100];
-
-  socket_init(&socket, "10000", "localhost");
+  socket_init(&socket, "3001", "localhost");
   socket_connect(&socket);
 
-  socket_send(&socket, message_send, strlen(message_send));
-  socket_receive(&socket, message_receive, strlen(message_receive));
+  socket_send(&socket, message_receive, strlen(message_receive));
+
+  //socket_destroy(&socket);
 }
 
 void mainWithServerMode() {
   puts("SERVER MODE");
 
-  socket_t socket;
+  socket_t accept_socket;
   socket_t peerskt;
 
-  char message_receive[100];
-  char *message_send = "hola como estas";
-
-  socket_init(&socket, "10000", "localhost");
-  socket_bind(&socket);
-  socket_listen(&socket, 1);
-
-  socket_accept(&socket, &peerskt);
-
-  socket_receive(&socket, message_receive, strlen(message_receive));
-  socket_send(&socket, message_send, strlen(message_send));
 
 
+  char message_receive[4];
+
+  socket_init(&accept_socket, "3001", "localhost");
+  socket_bind(&accept_socket);
+  socket_listen(&accept_socket, 1);
+
+  socket_accept(&accept_socket, &peerskt);
+  socket_receive(&peerskt, message_receive, strlen(message_receive));
+
+  printf("%s\n", message_receive);
+
+  socket_destroy(&accept_socket);
+  socket_destroy(&peerskt);
 }
 
 int main(int argc, char *argv[]) {
@@ -87,33 +88,5 @@ int main(int argc, char *argv[]) {
   } else {
     return 1;
   }
-
   return 0;
-  /*
-  char *buffer;
-  FILE *fp = stdin;
-
-  if (argc > POS_NOMBRE_ARCHIVO)
-  {
-    fp = fopen(argv[POS_NOMBRE_ARCHIVO], "r");
-    if ( fp == NULL ) return ARCHIVO_NO_ENCONTRADO;
-  }
-
-  buffer = malloc(sizeof(int)); /* buffer innecesario */
-  /*
-  while ( !feof(fp) )
-  {
-    int c = fgetc(fp);
-    if ( c != EOF )
-      printf("%c", (char) c);
-  }
-
-  if (argc > POS_NOMBRE_ARCHIVO)
-    fclose(fp);
-
-  free(buffer);
-
-  return SALIDA_NORMAL;
-
-  */
 }
