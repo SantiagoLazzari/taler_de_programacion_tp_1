@@ -1,20 +1,3 @@
-/*
-si se ejecuta el programa en modo servidor
-./tp  ​
-1) server (explicitamente palabra "server")  ​
-2) port (el numero de puerto)
-
-si se ejecuta el programa en modo cliente
-./tp
-1) client (explicitamente palabra "client")  ​
-2) hostname (el nombre del host al que se quiere conectar el cliente)
-3) port (el puerto al que se quiere conectar el cliente)
-4) old_local_file (nombre del archivo que se desea actualizar)
-5) new_local_file (nombre del archivo que deberia representar el archivo actualizado)
-6) new_remote_file (nombre del archivo que esta actualizado)
-7) block_size (el tamano del checksum que se desa utilizar)
-*/
-
 #ifndef _POSIX_C_SOURCE
 #define _POSIX_C_SOURCE 1
 #endif
@@ -23,72 +6,38 @@ si se ejecuta el programa en modo cliente
 #include <string.h>
 #include <stdlib.h>
 #include "api_socket.h"
+#include "api_client.h"
+#include "api_server.h"
 
+
+/**Server arguments*/
+#define SERVER_ARGUMENT_PORT argv[2]
+#define SERVER_ARGUMENTS_COUNT 2
+
+/*Client arguments*/
+#define CLIENT_ARGUMENT_HOSTNAME argv[2]
+#define CLIENT_ARGUMENT_PORT argv[3]
+#define CLIENT_ARGUMENT_OLD_LOCAL_FILE argv[4]
+#define CLIENT_ARGUMENT_NEW_LOCAL_FILE argv[5]
+#define CLIENT_ARGUMENT_NEW_REMOTE_FILE argv[6]
+#define CLIENT_ARGUMENT_BLOCK_SIZE argv[7]
+#define CLIENT_ARGUMENTS_COUNT 8
+
+/*Program mode argument*/
 #define ARGUMENT_PROGRAM_TYPE argv[1]
-#define ARGUMENT_PORT argv[2]
-
 #define SOCKET_MODE_SERVER "server"
 #define SOCKET_MODE_CLIENT "client"
 
-#define PROGRAM_MODE_SERVER_ARGUMENTS_COUNT 3
+/*String comparisson*/
 #define STRING_1_IS_EQUAL_TO_STRING_2(string1, string2) !strcmp(string1, string2)
-
-#define PROGRAM_MODE_CLIENT_ARGUMENTS_COUNT 3
-
-#define LARGO_FILE 20
-#define POS_NOMBRE_ARCHIVO 1
-#define ARCHIVO_NO_ENCONTRADO 1
-#define SALIDA_NORMAL 0
-
-void mainWithClientMode() {
-  puts("CLIENT MODE");
-
-  socket_t socket;
-
-  char *request = "hola como estas";
-
-  socket_init(&socket, "3001", "localhost");
-  socket_connect(&socket);
-
-  socket_send(&socket, request, strlen(request));
-  socket_send(&socket, request, strlen(request));
-  socket_send(&socket, request, strlen(request));
-  socket_send(&socket, request, strlen(request));
-
-
-  // socket_destroy(&socket);
-}
-
-void mainWithServerMode() {
-  puts("SERVER MODE");
-
-  socket_t accept_socket;
-  socket_t peerskt;
-
-  char message_receive[15];
-
-  socket_init(&accept_socket, "3001", "localhost");
-  socket_bind(&accept_socket);
-  socket_listen(&accept_socket, 1);
-
-  socket_accept(&accept_socket, &peerskt);
-
-  for (int i = 0 ; i < 4; i++) {
-    socket_receive(&peerskt, message_receive, strlen(message_receive));
-    printf("%s\n", message_receive);
-  }
-
-  socket_destroy(&accept_socket);
-  socket_destroy(&peerskt);
-}
 
 int main(int argc, char *argv[]) {
   char *programMode = argv[1];
 
-  if (STRING_1_IS_EQUAL_TO_STRING_2(programMode, SOCKET_MODE_CLIENT) && argc != PROGRAM_MODE_CLIENT_ARGUMENTS_COUNT) {
-    mainWithClientMode();
-  } else if (STRING_1_IS_EQUAL_TO_STRING_2(programMode, SOCKET_MODE_SERVER) && argc != PROGRAM_MODE_SERVER_ARGUMENTS_COUNT) {
-    mainWithServerMode();
+  if (STRING_1_IS_EQUAL_TO_STRING_2(programMode, SOCKET_MODE_CLIENT) && argc != CLIENT_ARGUMENTS_COUNT) {
+    client_begin(CLIENT_ARGUMENT_HOSTNAME, CLIENT_ARGUMENT_PORT, CLIENT_ARGUMENT_OLD_LOCAL_FILE, CLIENT_ARGUMENT_NEW_LOCAL_FILE, CLIENT_ARGUMENT_NEW_REMOTE_FILE, CLIENT_ARGUMENT_BLOCK_SIZE);
+  } else if (STRING_1_IS_EQUAL_TO_STRING_2(programMode, SOCKET_MODE_SERVER) && argc != SERVER_ARGUMENTS_COUNT) {
+    server_begin(SERVER_ARGUMENT_PORT);
   } else {
     return 1;
   }
