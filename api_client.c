@@ -5,21 +5,22 @@
 #include <string.h>
 #include <stdlib.h>
 
-int client_begin(char *hostname, char *port, char *old_local_file, char *new_local_file, char *new_remote_file, char *block_size) {
+#define REMOTE_FILENAME_SIZE_BUFFER_SIZE 4
+#define BLOCK_SIZE_BUFFER_SIZE 4
+
+int client_begin(char *hostname, char *port, char *old_local_filename, char *new_local_filename, char *new_remote_filename, char *block_size) {
   puts("Begin Client");
 
   socket_t socket;
 
-  char *filename = "new_file_with_an_extreme_large_and_motherfucking_anoying_name";
+  int new_remote_file_size = strlen(new_remote_filename);
+  char filename_and_blocksize_buffer[REMOTE_FILENAME_SIZE_BUFFER_SIZE + strlen(new_remote_filename) + BLOCK_SIZE_BUFFER_SIZE];
+  sprintf(filename_and_blocksize_buffer, "%.04d%s%.04d",new_remote_file_size, new_remote_filename, atoi(block_size));
 
-  int filenamelen = strlen(filename);
-  char filename_buffer[4 + strlen(filename)];
-  sprintf(filename_buffer, "%.04d%s",filenamelen, filename);
-
-  socket_init(&socket, "3001", "localhost");
+  socket_init(&socket, port, hostname);
   socket_connect(&socket);
 
-  socket_send(&socket, filename_buffer, strlen(filename_buffer));
+  socket_send(&socket, filename_and_blocksize_buffer, strlen(filename_and_blocksize_buffer));
 
   socket_destroy(&socket);
 }

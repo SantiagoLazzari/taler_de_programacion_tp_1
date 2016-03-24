@@ -5,30 +5,37 @@
 #include <string.h>
 #include <stdlib.h>
 
+#define SERVER_HOST "localhost"
+#define REMOTE_FILENAME_SIZE_BUFFER_SIZE 4
+#define BLOCK_SIZE_BUFFER_SIZE 4
+
+
 int server_begin(char *port) {
   puts("Begin Server");
 
   socket_t accept_socket;
   socket_t peerskt;
 
-  char filenamelen_buffer[4];
+  char remote_filename_size_buffer[REMOTE_FILENAME_SIZE_BUFFER_SIZE];
 
-  socket_init(&accept_socket, "3001", "localhost");
+  socket_init(&accept_socket, port, SERVER_HOST);
   socket_bind(&accept_socket);
   socket_listen(&accept_socket, 1);
-
   socket_accept(&accept_socket, &peerskt);
 
-  socket_receive(&peerskt, filenamelen_buffer, 4);
+  socket_receive(&peerskt, remote_filename_size_buffer, REMOTE_FILENAME_SIZE_BUFFER_SIZE);
+  printf("%.*s \n",REMOTE_FILENAME_SIZE_BUFFER_SIZE, remote_filename_size_buffer);
 
-  printf("%.*s \n",4, filenamelen_buffer);
+  int remote_filename_size = atoi(remote_filename_size_buffer);
+  char remote_filename_buffer[remote_filename_size];
 
-  int filenamelen = atoi(filenamelen_buffer);
-  char filename_buffer[filenamelen];
+  socket_receive(&peerskt, remote_filename_buffer, remote_filename_size);
+  printf("%.*s \n",remote_filename_size, remote_filename_buffer );
 
-  socket_receive(&peerskt, filename_buffer, filenamelen);
+  char blocksize_buffer[BLOCK_SIZE_BUFFER_SIZE];
 
-  printf("%.*s \n",filenamelen, filename_buffer );
+  socket_receive(&peerskt, blocksize_buffer, BLOCK_SIZE_BUFFER_SIZE);
+  printf("%.*s \n",BLOCK_SIZE_BUFFER_SIZE, blocksize_buffer);
 
   socket_destroy(&accept_socket);
   socket_destroy(&peerskt);
