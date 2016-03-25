@@ -8,10 +8,10 @@
 
 typedef struct checksum {
   char *string;
-  unsigned long checksum_applied_to_string;
+  unsigned int checksum_applied_to_string;
   int size;
-  unsigned long high;
-  unsigned long low;
+  unsigned int high;
+  unsigned int low;
 
 } checksum_t;
 

@@ -109,9 +109,6 @@ int socket_receive(socket_t *self, char *buf, int size) {
    else {
       return -1;
    }
-  //TODO : acordarse que despues de receive hay que cerrar el socket
-  // shutdown(peerskt, SHUT_RDWR);
-  // close(peerskt);
 
   return 0;
 }

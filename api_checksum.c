@@ -2,12 +2,12 @@
 
 #define M 0x10000
 
-unsigned long checksum(unsigned int low, unsigned long high) {
+unsigned int checksum(unsigned int low, unsigned int high) {
   return low + (high * M);
 }
 
-unsigned long lower(char *string, int size) {
-  unsigned long lower = 0;
+unsigned int lower(char *string, int size) {
+  unsigned int lower = 0;
 
   for (int i = 0 ; i < size ; i++) {
     lower += string[i];
@@ -17,8 +17,8 @@ unsigned long lower(char *string, int size) {
   return lower;
 }
 
-unsigned long higher(char *string, int size) {
-  unsigned long higher = 0;
+unsigned int higher(char *string, int size) {
+  unsigned int higher = 0;
 
   for (int i = 0 ; i < size ; i++) {
     higher += (size - i) * string[i];
@@ -31,8 +31,8 @@ unsigned long higher(char *string, int size) {
 int checksum_rolling_init(checksum_t *self, checksum_t *rolling_checksum, char *string) {
   checksum_init(rolling_checksum, string, self->size);
 
-  unsigned long new_low = (self->low - self->string[0] + string[self->size -1]) % M;
-  unsigned long new_high = (self->high - self->size * self->string[0] + new_low) % M;
+  unsigned int new_low = (self->low - self->string[0] + string[self->size -1]) % M;
+  unsigned int new_high = (self->high - self->size * self->string[0] + new_low) % M;
 
   rolling_checksum->checksum_applied_to_string = checksum(new_low, new_high);
 

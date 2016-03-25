@@ -1,7 +1,7 @@
 #include "api_file_checksum_parser.h"
 
 int file_checksum_parser_init(file_checksum_parser_t *self, char *filename,int block_size) {
-  self->filename = filename;
+  self->filename = strcat(filename, ".txt");
   self->block_size = block_size;
 
   return 0;

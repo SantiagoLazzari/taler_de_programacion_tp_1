@@ -2,9 +2,8 @@
 #define API_FILE_CHECKSUM_PARSER_H
 
 #include <stdio.h>
+#include <string.h>
 #include <stdlib.h>
-#include <errno.h>
-#include <stdbool.h>
 
 #include "api_checksum.h"
 
