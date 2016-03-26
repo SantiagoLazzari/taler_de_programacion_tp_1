@@ -26,18 +26,15 @@
 
 #define STRING_1_IS_EQUAL_TO_STRING_2(string1, string2) !strcmp(string1, string2)
 
-// #define LARGO_FILE 20
-// #define POS_NOMBRE_ARCHIVO 1
-// #define ARCHIVO_NO_ENCONTRADO 1
-// #define SALIDA_NORMAL 0
-
 int main(int argc, char *argv[]) {
   if (STRING_1_IS_EQUAL_TO_STRING_2(CLIENT_PROGRAM_TYPE, ARGUMENT_PROGRAM_TYPE) && argc == CLIENT_ARGUMENTS_COUNT) {
     client_t client;
     client_init(&client, CLIENT_ARGUMENT_HOSTNAME, CLIENT_ARGUMENT_PORT, CLIENT_ARGUMENT_OLD_LOCAL_FILE, CLIENT_ARGUMENT_NEW_LOCAL_FILE, CLIENT_ARGUMENT_NEW_REMOTE_FILE, CLIENT_ARGUMENT_BLOCK_SIZE);
     client_begin(&client);
   } else if (STRING_1_IS_EQUAL_TO_STRING_2(SERVER_PROGRAM_TYPE, ARGUMENT_PROGRAM_TYPE) && argc == SERVER_ARGUMENTS_COUNT) {
-    server_begin(SERVER_ARGUMENT_PORT);
+    server_t server;
+    server_init(&server, SERVER_ARGUMENT_PORT);
+    server_begin(&server);
   } else {
     return 1;
   }
