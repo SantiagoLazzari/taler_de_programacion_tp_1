@@ -7,6 +7,8 @@
 
 #include "api_checksum.h"
 
+#define FILE_CHECKSUM_PARSER_REACHED_END_OF_FILE 1;
+
 typedef struct file_checksum_parser {
   char *filename;
   int block_size;

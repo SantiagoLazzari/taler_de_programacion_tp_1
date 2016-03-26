@@ -31,13 +31,16 @@ int server_begin(char *port) {
 
   socket_receive(&peerskt, remote_filename_buffer, remote_filename_size);
   printf("%.*s \n",remote_filename_size, remote_filename_buffer );
-
+  
   char blocksize_buffer[BLOCK_SIZE_BUFFER_SIZE];
 
   socket_receive(&peerskt, blocksize_buffer, BLOCK_SIZE_BUFFER_SIZE);
+
+
   printf("%.*s \n",BLOCK_SIZE_BUFFER_SIZE, blocksize_buffer);
 
-  
+
+
 
   socket_destroy(&accept_socket);
   socket_destroy(&peerskt);

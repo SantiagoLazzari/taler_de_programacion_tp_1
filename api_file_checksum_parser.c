@@ -18,7 +18,7 @@ int file_checksum_parser_checksum_at_index(file_checksum_parser_t *self, checksu
     character = fgetc(fp);
     printf("%c\n", character);
     if(feof(fp))
-      return 1;
+      return FILE_CHECKSUM_PARSER_REACHED_END_OF_FILE;
     buffer[index] = character;
   }
 

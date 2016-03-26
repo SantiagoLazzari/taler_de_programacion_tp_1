@@ -9,15 +9,15 @@ int checksum_test() {
   checksum_t bhol_checksum;
   checksum_t rolling_checksum;
 
-  char *bhol = "bhol";
-  char *hola = "hola";
+  char *bhol = "xa";
+  char *hola = "aa";
 
   checksum_init(&checksum, hola, strlen(hola));
   checksum_init(&bhol_checksum, bhol, strlen(bhol));
 
   checksum_rolling_init(&bhol_checksum, &rolling_checksum, hola);
 
-  printf("checksum %lu bhol_checksum %lu rolling_checksum %lu\n", checksum.checksum_applied_to_string, bhol_checksum.checksum_applied_to_string, rolling_checksum.checksum_applied_to_string);
+  printf("checksum %d bhol_checksum %d rolling_checksum %d\n", checksum.checksum_applied_to_string, bhol_checksum.checksum_applied_to_string, rolling_checksum.checksum_applied_to_string);
 
   return bhol_checksum.checksum_applied_to_string == rolling_checksum.checksum_applied_to_string;
 }
@@ -40,7 +40,7 @@ int file_checksum_parser_test() {
   printf("%.*s \n", block_size, checksum.string);
 
 
-  printf("checksum from test file : %lu, harcoded checksum %lu\n", checksum.checksum_applied_to_string, test_checksum.checksum_applied_to_string);
+  printf("checksum from test file : %d, harcoded checksum %d\n", checksum.checksum_applied_to_string, test_checksum.checksum_applied_to_string);
   return checksum.checksum_applied_to_string == test_checksum.checksum_applied_to_string;
 }
 
