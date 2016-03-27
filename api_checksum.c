@@ -34,7 +34,19 @@ int checksum_rolling_init(checksum_t *self, checksum_t *rolling_checksum, char *
   unsigned int new_low = (self->low - self->string[0] + string[self->size -1]) % M;
   unsigned int new_high = (self->high - self->size * self->string[0] + new_low) % M;
 
+  rolling_checksum->low = new_low;
+  rolling_checksum->high = new_high;
+
   rolling_checksum->checksum_applied_to_string = checksum(new_low, new_high);
+
+  return 0;
+}
+
+int checksum_calculate_checksum(checksum_t *self) {
+  self->low = lower(self->string, self->size);
+  self->high = higher(self->string, self->size);
+
+  self->checksum_applied_to_string = checksum(self->low, self->high);
 
   return 0;
 }
@@ -43,10 +55,22 @@ int checksum_init(checksum_t *self, char *string, int size) {
   self->string = string;
   self->size = size;
 
-  self->low = lower(string, size);
-  self->high = higher(string, size);
+  return 0;
+}
 
-  self->checksum_applied_to_string = checksum(self->low, self->high);
+int checksum_init_with_checksum_applied_to_string(checksum_t *self, char *string, int size) {
+  checksum_init(self, string, size);
+  checksum_calculate_checksum(self);
+
+  return 0;
+}
+
+int checksum_copy_from_checksum(checksum_t *self, checksum_t *other_checksum) {
+  self->string = other_checksum->string;
+  self->checksum_applied_to_string = other_checksum->checksum_applied_to_string;
+  self->size = other_checksum->size;
+  self->high = other_checksum->high;
+  self->low = other_checksum->low;
 
   return 0;
 }

@@ -2,12 +2,14 @@
 #define API_SERVER_H
 
 #include "api_socket.h"
+#include "api_vector.h"
 
 typedef struct server {
   char *port;
   socket_t *socket;
+  vector_t *vector;
 
-  char *remote_filename;
+  char *new_remote_filename;
   char *block_size;
 
 } server_t;

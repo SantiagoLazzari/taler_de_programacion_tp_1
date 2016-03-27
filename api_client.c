@@ -6,9 +6,6 @@
 #include "api_file_checksum_parser.h"
 #include "api_comunication_formatter.h"
 
-#define REMOTE_FILENAME_SIZE_BUFFER_SIZE 4
-#define BLOCK_SIZE_BUFFER_SIZE 4
-
 int client_init(client_t *self, char *hostname, char *port, char *old_local_filename, char *new_local_filename, char *new_remote_filename, char *block_size) {
   self->hostname = hostname;
   self->port = port;

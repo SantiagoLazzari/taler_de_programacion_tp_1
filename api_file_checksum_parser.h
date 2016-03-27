@@ -16,6 +16,8 @@ typedef struct file_checksum_parser {
 
 int file_checksum_parser_init(file_checksum_parser_t *self, char *filename,int block_size);
 
-int file_checksum_parser_checksum_at_index(file_checksum_parser_t *self, checksum_t *checksum, char *buffer, unsigned long index);
+int file_checksum_parser_checksum_at_index(file_checksum_parser_t *self, checksum_t *checksum, char *buffer, unsigned int index);
+
+int file_checksum_parser_rolling_checksum_at_index(file_checksum_parser_t *self, checksum_t *checksum, checksum_t *rolling_checksum, char *buffer, unsigned int index);
 
 #endif
