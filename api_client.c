@@ -31,7 +31,7 @@ int client_send_checksums(client_t *self) {
   char checksum_buffer[atoi(self->block_size)];
   char checksum_send_buffer[CHECKSUM_BUFFER_SIZE];
 
-  file_checksum_parser_init(&file_checksum_parser, self->old_local_filename, atoi(self->block_size));
+  file_checksum_parser_init(&file_checksum_parser, self->old_local_filename, atoi(self->block_size), "r");
   int block_index = 0;
   int file_checksum_parser_reached_end_of_file = 0;
 
@@ -50,6 +50,9 @@ int client_send_checksums(client_t *self) {
 
   prepare_buffer_to_end_send_checksum_to_remote(end_send_checksum_buffer);
   socket_send(self->socket, end_send_checksum_buffer, END_SEND_CHECKSUM_BUFFER_SIZE);
+
+  file_checksum_parser_destroy(&file_checksum_parser);
+
   return 0;
 }
 
@@ -57,10 +60,12 @@ int client_receive_checksums_and_diffs(client_t *self) {
   bool did_terminate_receive_checksums_and_diffs = false;
 
   file_checksum_parser_t file_checksum_parser;
-  file_checksum_parser_init(&file_checksum_parser, self->new_local_filename, atoi(self->block_size));
+  file_checksum_parser_init(&file_checksum_parser, self->new_local_filename, atoi(self->block_size), "w");
 
   file_checksum_parser_t old_file_checksum_parser;
-  file_checksum_parser_init(&old_file_checksum_parser, self->old_local_filename, atoi(self->block_size));
+  file_checksum_parser_init(&old_file_checksum_parser, self->old_local_filename, atoi(self->block_size),"r");
+
+
 
   int block_index = 0;
 
@@ -109,6 +114,9 @@ int client_receive_checksums_and_diffs(client_t *self) {
     }
 
   }
+
+  file_checksum_parser_destroy(&file_checksum_parser);
+  file_checksum_parser_destroy(&old_file_checksum_parser);
 
 }
 

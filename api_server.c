@@ -65,7 +65,7 @@ int server_receive_local_checksums(server_t *self) {
 
 int server_compare_checksums_with_new_remote_file(server_t *self) {
   file_checksum_parser_t file_checksum_parser;
-  file_checksum_parser_init(&file_checksum_parser, self->new_remote_filename, atoi(self->block_size));
+  file_checksum_parser_init(&file_checksum_parser, self->new_remote_filename, atoi(self->block_size), "r");
   vector_t diff_characters_acumulation_vector;
   vector_init(&diff_characters_acumulation_vector);
 
@@ -130,6 +130,7 @@ int server_compare_checksums_with_new_remote_file(server_t *self) {
 
   socket_send(self->socket, end_checksums_and_diff, END_SEND_CHECKSUM_AND_DIFF_TO_LOCAL_SIZE);
 
+  file_checksum_parser_destroy(&file_checksum_parser);
   vector_destroy(&diff_characters_acumulation_vector);
   //tengo que mandar lo que le falta para completar el archivo
   return 0;
