@@ -8,6 +8,7 @@
 #include "api_socket.h"
 #include "api_server.h"
 #include "api_client.h"
+#include "api_vector.h"
 
 #define ARGUMENT_PROGRAM_TYPE argv[1]
 
@@ -37,10 +38,14 @@ int main(int argc, char *argv[]) {
       CLIENT_ARGUMENT_NEW_REMOTE_FILE, \
       CLIENT_ARGUMENT_BLOCK_SIZE);
     client_begin(&client);
+    client_destroy(&client);
   } else if (STRING_1_IS_EQUAL_TO_STRING_2(SERVER_PROGRAM_TYPE, ARGUMENT_PROGRAM_TYPE) && argc == SERVER_ARGUMENTS_COUNT) {
     server_t server;
-    server_init(&server, SERVER_ARGUMENT_PORT);
+    vector_t vector;
+    vector_init(&vector);
+    server_init(&server, SERVER_ARGUMENT_PORT, &vector);
     server_begin(&server);
+    server_destroy(&server);
   } else {
     return 1;
   }

@@ -14,8 +14,10 @@ typedef struct server {
 
 } server_t;
 
-int server_init(server_t *self, char *port);
+int server_init(server_t *self, char *port, vector_t *vector);
 
 int server_begin(server_t *self);
+
+int server_destroy(server_t *self);
 
 #endif

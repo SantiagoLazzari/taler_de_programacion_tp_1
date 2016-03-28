@@ -53,6 +53,60 @@ int client_send_checksums(client_t *self) {
   return 0;
 }
 
+int client_receive_checksums_and_diffs(client_t *self) {
+  bool did_terminate_receive_checksums_and_diffs = false;
+
+  file_checksum_parser_t file_checksum_parser;
+  file_checksum_parser_init(&file_checksum_parser, self->new_local_filename, atoi(self->block_size));
+
+  file_checksum_parser_t old_file_checksum_parser;
+  file_checksum_parser_init(&old_file_checksum_parser, self->old_local_filename, atoi(self->block_size));
+
+  int block_index = 0;
+
+  char checksum_and_diff_buffer_flag[END_SEND_CHECKSUM_AND_DIFF_TO_LOCAL_SIZE];
+
+  while (!did_terminate_receive_checksums_and_diffs) {
+
+    socket_receive(self->socket, checksum_and_diff_buffer_flag, END_SEND_CHECKSUM_AND_DIFF_TO_LOCAL_SIZE);
+    printf("flag : %.*s \n", END_SEND_CHECKSUM_AND_DIFF_TO_LOCAL_SIZE, checksum_and_diff_buffer_flag);
+
+    if (is_checksum_flag_adding_to_new_local_diff(checksum_and_diff_buffer_flag)) {
+      puts("agarre un diff");
+
+      char diff_size_buffer[SEND_DIFF_BUFFER_TO_LOCAL_SIZE_SIZE];
+
+      socket_receive(self->socket, diff_size_buffer, SEND_DIFF_BUFFER_TO_LOCAL_SIZE_SIZE);
+      int diff_size = (int)strtol(diff_size_buffer, NULL, 16);
+
+      char diff_buffer[diff_size];
+
+      socket_receive(self->socket, diff_buffer, diff_size);
+
+      file_checksum_parser_set_buffer_at_index(&file_checksum_parser, diff_buffer, diff_size, block_index);
+      block_index += diff_size;
+    }
+
+    if (is_checksum_flag_adding_to_new_local_checksum(checksum_and_diff_buffer_flag)) {
+      puts("agregue un checksum nuevo");
+      char checksum_buffer[SEND_CHECKSUM_INDEX_TO_LOCAL_FORMAT_SIZE - SEND_DIFF_BUFFER_TO_LOCAL_PROTOCOL_SIZE];
+      socket_receive(self->socket, checksum_buffer, SEND_CHECKSUM_INDEX_TO_LOCAL_FORMAT_SIZE - SEND_DIFF_BUFFER_TO_LOCAL_PROTOCOL_SIZE);
+
+      char old_file_buffer[atoi(self->block_size)];
+
+      file_checksum_parser_get_buffer_from_block_index(&old_file_checksum_parser, old_file_buffer, (int)strtol(checksum_buffer, NULL, 16));
+
+      file_checksum_parser_set_buffer_at_index(&file_checksum_parser, old_file_buffer, atoi(self->block_size), block_index);
+      block_index += atoi(self->block_size);
+    }
+
+    if (is_checksum_flag_terminating_receive_checksums_and_diff(checksum_and_diff_buffer_flag)) {
+      did_terminate_receive_checksums_and_diffs = true;
+    }
+
+  }
+
+}
 
 int client_begin(client_t *self) {
   puts("Begin Client");
@@ -67,8 +121,13 @@ int client_begin(client_t *self) {
   /*send all checksums with protocol*/
   client_send_checksums(self);
 
+  /*receive checksums and diffs*/
+  client_receive_checksums_and_diffs(self);
 
+  return 0;
+}
 
+int client_destroy(client_t *self) {
   socket_destroy(self->socket);
 
   return 0;

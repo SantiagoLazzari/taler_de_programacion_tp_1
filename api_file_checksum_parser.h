@@ -20,4 +20,8 @@ int file_checksum_parser_checksum_at_index(file_checksum_parser_t *self, checksu
 
 int file_checksum_parser_rolling_checksum_at_index(file_checksum_parser_t *self, checksum_t *checksum, checksum_t *rolling_checksum, char *buffer, unsigned int index);
 
+int file_checksum_parser_get_buffer_from_block_index(file_checksum_parser_t *self, char *buffer, int index);
+
+int file_checksum_parser_set_buffer_at_index(file_checksum_parser_t *self, char *buffer, int buffer_size, int index);
+
 #endif

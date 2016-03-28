@@ -57,6 +57,14 @@ unsigned int vector_contains_value(vector_t *self, int value) {
   return -1;
 }
 
+int vector_clean(vector_t *self) {
+  vector_destroy(self);
+
+  vector_init(self);
+
+  return 0;
+}
+
 void vector_destroy(vector_t *self) {
   free(self->data);
 }

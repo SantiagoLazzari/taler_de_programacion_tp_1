@@ -22,6 +22,8 @@ void vector_double_capacity_if_full(vector_t *self);
 
 unsigned int vector_contains_value(vector_t *self, int value);
 
+int vector_clean(vector_t *self);
+
 void vector_destroy(vector_t *self);
 
 #endif

@@ -9,6 +9,7 @@
 #define END_SEND_CHECKSUM_TO_REMOTE_FORMAT "02"
 #define SEND_CHECKSUM_INDEX_TO_LOCAL_FORMAT "04%.08x"
 #define SEND_DIFF_BUFFER_TO_LOCAL_FORMAT "03%.08x%.*s"
+#define END_SEND_CHECKSUM_AND_DIFF_TO_LOCAL_FORMAT "05"
 
 int prepare_buffer_to_send_new_filename_and_blocksize(char *new_remote_filename, char *filename_and_blocksize_buffer, char *block_size) {
   int new_remote_file_size = strlen(new_remote_filename);
@@ -51,4 +52,46 @@ int prepare_buffer_to_send_diff_to_local(char *diff_buffer, char *buffer, int si
   sprintf(buffer, SEND_DIFF_BUFFER_TO_LOCAL_FORMAT, size, size, diff_buffer);
 
   return 0;
+}
+
+int prepare_buffer_to_end_send_checksum_and_diff_to_local(char *buffer) {
+  sprintf(buffer, END_SEND_CHECKSUM_AND_DIFF_TO_LOCAL_FORMAT);
+
+  return 0;
+}
+
+bool is_checksum_flag_terminating_receive_checksums_and_diff(char *checksum_flag) {
+  char *terminate_flag = END_SEND_CHECKSUM_AND_DIFF_TO_LOCAL_FORMAT;
+
+  for (int index = 0 ; index < END_SEND_CHECKSUM_AND_DIFF_TO_LOCAL_SIZE ; index ++) {
+    if(checksum_flag[index] != terminate_flag[index]) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
+bool is_checksum_flag_adding_to_new_local_diff(char *checksum_flag) {
+  char *add_diff_flag = SEND_DIFF_BUFFER_TO_LOCAL_FORMAT;
+
+  for (int index = 0 ; index < END_SEND_CHECKSUM_AND_DIFF_TO_LOCAL_SIZE ; index ++) {
+    if(checksum_flag[index] != add_diff_flag[index]) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
+bool is_checksum_flag_adding_to_new_local_checksum(char *checksum_flag) {
+  char *add_checksum_flag = SEND_CHECKSUM_INDEX_TO_LOCAL_FORMAT;
+
+  for (int index = 0 ; index < END_SEND_CHECKSUM_AND_DIFF_TO_LOCAL_SIZE ; index ++) {
+    if(checksum_flag[index] != add_checksum_flag[index]) {
+      return false;
+    }
+  }
+
+  return true;
 }

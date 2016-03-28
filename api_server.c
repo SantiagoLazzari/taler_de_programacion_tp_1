@@ -10,8 +10,9 @@
 
 #define SERVER_HOST "localhost"
 
-int server_init(server_t *self, char *port) {
+int server_init(server_t *self, char *port, vector_t *vector) {
   self->port = port;
+  self->vector = vector;
 
   return 0;
 }
@@ -78,16 +79,11 @@ int server_compare_checksums_with_new_remote_file(server_t *self) {
 
   file_checksum_parser_reached_end_of_file = file_checksum_parser_checksum_at_index(&file_checksum_parser, &checksum, checksum_buffer, block_index);
 
-  puts("vector description");
-  for (int i = 0 ; i < self->vector->size ; i++) {
-
-    printf("%d\n", vector_get_value_at_index(self->vector, i));
-  }
-
+  int index_of_value = vector_contains_value(self->vector, checksum.checksum_applied_to_string);
 
   while (!file_checksum_parser_reached_end_of_file) {
     printf("%d\n", checksum.checksum_applied_to_string);
-    int index_of_value = vector_contains_value(self->vector, checksum.checksum_applied_to_string);
+    index_of_value = vector_contains_value(self->vector, checksum.checksum_applied_to_string);
     printf("%d\n", index_of_value);
     if (index_of_value != -1) {
       if (diff_characters_acumulation_vector.size != 0) {
@@ -101,7 +97,7 @@ int server_compare_checksums_with_new_remote_file(server_t *self) {
           prepare_buffer_to_send_diff_to_local(diff_characters_acumulation_buffer, diff_characters_send_buffer, diff_characters_acumulation_vector.size);
 
           socket_send(self->socket, diff_characters_send_buffer, SEND_DIFF_BUFFER_TO_LOCAL_PROTOCOL_SIZE + SEND_DIFF_BUFFER_TO_LOCAL_SIZE_SIZE + diff_characters_acumulation_vector.size);
-
+          vector_clean(&diff_characters_acumulation_vector);
       }
 
       char buffer[SEND_CHECKSUM_INDEX_TO_LOCAL_FORMAT_SIZE];
@@ -115,14 +111,24 @@ int server_compare_checksums_with_new_remote_file(server_t *self) {
     } else {
       printf("%c\n", checksum.string[0]);
       vector_append(&diff_characters_acumulation_vector,checksum.string[0]);
-
       //TODO: rolling checksum bug
-
       file_checksum_parser_reached_end_of_file = file_checksum_parser_checksum_at_index(&file_checksum_parser, &checksum, checksum_buffer, ++ block_index);
-
-      // checksum_copy_from_checksum(&checksum, &rolling_checksum);
     }
   }
+
+  //TODO: send end of unfind checksums
+  if (index_of_value != -1) {
+    puts("no sobraron bytes");
+  } else {
+    puts("sobraron bytes");
+  }
+
+
+  char end_checksums_and_diff[END_SEND_CHECKSUM_AND_DIFF_TO_LOCAL_SIZE];
+
+  prepare_buffer_to_end_send_checksum_and_diff_to_local(end_checksums_and_diff);
+
+  socket_send(self->socket, end_checksums_and_diff, END_SEND_CHECKSUM_AND_DIFF_TO_LOCAL_SIZE);
 
   vector_destroy(&diff_characters_acumulation_vector);
   //tengo que mandar lo que le falta para completar el archivo
@@ -136,11 +142,6 @@ int server_begin(server_t *self) {
   socket_t peerskt;
 
   self->socket = &peerskt;
-
-  /*Init server checksum pool*/
-  vector_t vector;
-  vector_init(&vector);
-  self->vector = &vector;
 
   socket_init(&accept_socket, self->port, SERVER_HOST);
   socket_bind(&accept_socket);
@@ -169,7 +170,11 @@ int server_begin(server_t *self) {
 }
 
 int server_destroy(server_t *self) {
+  puts("pre destroy");
   socket_destroy(self->socket);
-
+  puts("intermediate destroy");
   vector_destroy(self->vector);
+  puts("post destroy");
+
+  return 0;
 }

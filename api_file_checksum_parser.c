@@ -45,5 +45,30 @@ int file_checksum_parser_rolling_checksum_at_index(file_checksum_parser_t *self,
 
   fclose(fp);
   return 0;
+}
 
+int file_checksum_parser_get_buffer_from_block_index(file_checksum_parser_t *self, char *buffer, int index) {
+  FILE *fp = fopen(self->filename,"r");
+
+  fseek(fp, index, SEEK_SET);
+
+  for (int i = 0 ; i < self->block_size ; i++) {
+    fprintf(fp, "%c", buffer[i]);
+  }
+
+  fclose(fp);
+  return 0;
+}
+
+int file_checksum_parser_set_buffer_at_index(file_checksum_parser_t *self, char *buffer, int buffer_size, int index) {
+  FILE *fp = fopen(self->filename,"w");
+
+  fseek(fp, index, SEEK_SET);
+
+  printf("agregue %.*s en el inddex %d\n", buffer_size, buffer, index);
+
+  fprintf(fp, "%.*s", buffer_size, buffer);
+
+  fclose(fp);
+  return 0;
 }

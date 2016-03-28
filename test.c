@@ -71,10 +71,22 @@ int vector_test() {
 
 }
 
+int test_set_chars_to_a_file() {
+  FILE *fp = fopen("tu_mama","w");
+
+  fseek(fp, 0, SEEK_SET);
+
+  fprintf(fp, "%.*s", 10, "hola como ");
+
+  fclose(fp);
+}
+
 int main(int argc, char *argv[]) {
   int check_test = checksum_test();
   int file_checksum_test = file_checksum_parser_test();
   int vec_test = vector_test();
+
+  test_set_chars_to_a_file();
 
   if (!check_test && !vec_test && !file_checksum_test) {
     puts("all test succeded");
