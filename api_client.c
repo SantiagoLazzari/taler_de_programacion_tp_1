@@ -69,10 +69,10 @@ int client_receive_checksums_and_diffs(client_t *self) {
   while (!did_terminate_receive_checksums_and_diffs) {
 
     socket_receive(self->socket, checksum_and_diff_buffer_flag, END_SEND_CHECKSUM_AND_DIFF_TO_LOCAL_SIZE);
-    printf("flag : %.*s \n", END_SEND_CHECKSUM_AND_DIFF_TO_LOCAL_SIZE, checksum_and_diff_buffer_flag);
+    // printf("flag : %.*s \n", END_SEND_CHECKSUM_AND_DIFF_TO_LOCAL_SIZE, checksum_and_diff_buffer_flag);
 
     if (is_checksum_flag_adding_to_new_local_diff(checksum_and_diff_buffer_flag)) {
-      puts("agarre un diff");
+      // puts("agarre un diff");
 
       char diff_size_buffer[SEND_DIFF_BUFFER_TO_LOCAL_SIZE_SIZE];
 
@@ -88,13 +88,17 @@ int client_receive_checksums_and_diffs(client_t *self) {
     }
 
     if (is_checksum_flag_adding_to_new_local_checksum(checksum_and_diff_buffer_flag)) {
-      puts("agregue un checksum nuevo");
+      // puts("agregue un checksum nuevo");
       char checksum_buffer[SEND_CHECKSUM_INDEX_TO_LOCAL_FORMAT_SIZE - SEND_DIFF_BUFFER_TO_LOCAL_PROTOCOL_SIZE];
       socket_receive(self->socket, checksum_buffer, SEND_CHECKSUM_INDEX_TO_LOCAL_FORMAT_SIZE - SEND_DIFF_BUFFER_TO_LOCAL_PROTOCOL_SIZE);
 
       char old_file_buffer[atoi(self->block_size)];
 
-      file_checksum_parser_get_buffer_from_block_index(&old_file_checksum_parser, old_file_buffer, (int)strtol(checksum_buffer, NULL, 16));
+      int checksum_index = (int)strtol(checksum_buffer, NULL, 16);
+
+      // printf("checksum index %d\n", checksum_index);
+
+      file_checksum_parser_get_buffer_from_block_index(&old_file_checksum_parser, old_file_buffer, checksum_index);
 
       file_checksum_parser_set_buffer_at_index(&file_checksum_parser, old_file_buffer, atoi(self->block_size), block_index);
       block_index += atoi(self->block_size);

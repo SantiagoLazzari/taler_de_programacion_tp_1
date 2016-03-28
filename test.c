@@ -77,6 +77,13 @@ int test_set_chars_to_a_file() {
   fseek(fp, 0, SEEK_SET);
 
   fprintf(fp, "%.*s", 10, "hola como ");
+  fclose(fp);
+
+  fp = fopen("tu_mama","w");
+
+  fseek(fp, 10, SEEK_SET);
+
+  fprintf(fp, "%.*s", 10, "hola como ");
 
   fclose(fp);
 }

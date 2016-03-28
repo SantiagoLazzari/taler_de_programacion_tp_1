@@ -50,11 +50,17 @@ int file_checksum_parser_rolling_checksum_at_index(file_checksum_parser_t *self,
 int file_checksum_parser_get_buffer_from_block_index(file_checksum_parser_t *self, char *buffer, int index) {
   FILE *fp = fopen(self->filename,"r");
 
-  fseek(fp, index, SEEK_SET);
+  fseek(fp, index * self->block_size, SEEK_SET);
+
+  char character;
 
   for (int i = 0 ; i < self->block_size ; i++) {
-    fprintf(fp, "%c", buffer[i]);
+    character = fgetc(fp);
+    
+    buffer[i] = character;
   }
+
+  // printf("hice get de %.*s\n", self->block_size, buffer);
 
   fclose(fp);
   return 0;
