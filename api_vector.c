@@ -49,7 +49,7 @@ void vector_double_capacity_if_full(vector_t *self) {
 
 unsigned int vector_contains_value(vector_t *self, int value) {
   for (unsigned int i = 0; i < self->size; i++) {
-    if(self->data[i] == value) {
+    if (self->data[i] == value) {
       return i;
     }
   }

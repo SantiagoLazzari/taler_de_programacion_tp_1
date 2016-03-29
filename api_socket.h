@@ -15,7 +15,7 @@ typedef struct socket {
   char *port;
   char *host;
   struct addrinfo *addrinfo;
-} socket_t ;
+} socket_t;
 
 int socket_init(socket_t *self, char *port, char *host);
 int socket_destroy(socket_t *self);

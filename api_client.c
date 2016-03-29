@@ -6,7 +6,13 @@
 #include "api_file_checksum_parser.h"
 #include "api_comunication_formatter.h"
 
-int client_init(client_t *self, char *hostname, char *port, char *old_local_filename, char *new_local_filename, char *new_remote_filename, char *block_size) {
+int client_init(client_t *self,\
+  char *hostname,\
+  char *port,\
+  char *old_local_filename,\
+  char *new_local_filename,\
+  char *new_remote_filename,\
+  char *block_size) {
   self->hostname = hostname;
   self->port = port;
   self->old_local_filename = old_local_filename;
@@ -18,28 +24,41 @@ int client_init(client_t *self, char *hostname, char *port, char *old_local_file
 }
 
 int client_send_filename_and_block_size(client_t *self) {
-  char filename_and_blocksize_buffer[REMOTE_FILENAME_SIZE_BUFFER_SIZE + strlen(self->new_remote_filename) + BLOCK_SIZE_BUFFER_SIZE];
-  prepare_buffer_to_send_new_filename_and_blocksize(self->new_remote_filename, filename_and_blocksize_buffer, self->block_size);
-  socket_send(self->socket, filename_and_blocksize_buffer, strlen(filename_and_blocksize_buffer));
+  char filename_and_blocksize_buffer[REMOTE_FILENAME_SIZE_BUFFER_SIZE +\
+   strlen(self->new_remote_filename) + BLOCK_SIZE_BUFFER_SIZE];
 
+   printf("%s\n", self->block_size);;
+
+
+  prepare_buffer_to_send_new_filename_and_blocksize(self->new_remote_filename,\
+    filename_and_blocksize_buffer, self->block_size);
+    printf("%s\n", self->block_size);;
+
+  socket_send(self->socket, filename_and_blocksize_buffer,\
+    strlen(filename_and_blocksize_buffer));
   return 0;
 }
 
 int client_send_checksums(client_t *self) {
   file_checksum_parser_t file_checksum_parser;
   checksum_t checksum;
-  char checksum_buffer[atoi(self->block_size)];
+  int kBlockSize =  atoi(self->block_size);
+  char checksum_buffer[kBlockSize];
   char checksum_send_buffer[CHECKSUM_BUFFER_SIZE];
 
-  file_checksum_parser_init(&file_checksum_parser, self->old_local_filename, atoi(self->block_size), "r");
+  file_checksum_parser_init(&file_checksum_parser,\
+    self->old_local_filename, atoi(self->block_size), "r");
   int block_index = 0;
   int file_checksum_parser_reached_end_of_file = 0;
 
   while (!file_checksum_parser_reached_end_of_file) {
-    file_checksum_parser_reached_end_of_file = file_checksum_parser_checksum_at_index(&file_checksum_parser, &checksum, checksum_buffer, block_index);
+    file_checksum_parser_reached_end_of_file = \
+    file_checksum_parser_checksum_at_index(&file_checksum_parser,\
+      &checksum, checksum_buffer, block_index);
 
     if (!file_checksum_parser_reached_end_of_file) {
-      prepare_buffer_to_send_checksum_to_remote(&checksum, checksum_send_buffer);
+      prepare_buffer_to_send_checksum_to_remote(&checksum,\
+        checksum_send_buffer);
       socket_send(self->socket, checksum_send_buffer, CHECKSUM_BUFFER_SIZE);
     }
 
@@ -49,7 +68,8 @@ int client_send_checksums(client_t *self) {
   char end_send_checksum_buffer[END_SEND_CHECKSUM_BUFFER_SIZE];
 
   prepare_buffer_to_end_send_checksum_to_remote(end_send_checksum_buffer);
-  socket_send(self->socket, end_send_checksum_buffer, END_SEND_CHECKSUM_BUFFER_SIZE);
+  socket_send(self->socket, end_send_checksum_buffer,\
+    END_SEND_CHECKSUM_BUFFER_SIZE);
 
   file_checksum_parser_destroy(&file_checksum_parser);
 
@@ -60,64 +80,72 @@ int client_receive_checksums_and_diffs(client_t *self) {
   bool did_terminate_receive_checksums_and_diffs = false;
 
   file_checksum_parser_t file_checksum_parser;
-  file_checksum_parser_init(&file_checksum_parser, self->new_local_filename, atoi(self->block_size), "w");
+  file_checksum_parser_init(&file_checksum_parser, self->new_local_filename,\
+    atoi(self->block_size), "w");
+
+  int kBlockSize = atoi(self->block_size);
 
   file_checksum_parser_t old_file_checksum_parser;
-  file_checksum_parser_init(&old_file_checksum_parser, self->old_local_filename, atoi(self->block_size),"r");
-
-
+  file_checksum_parser_init(&old_file_checksum_parser,\
+    self->old_local_filename, atoi(self->block_size),"r");
 
   int block_index = 0;
 
   char checksum_and_diff_buffer_flag[END_SEND_CHECKSUM_AND_DIFF_TO_LOCAL_SIZE];
 
   while (!did_terminate_receive_checksums_and_diffs) {
+    socket_receive(self->socket, checksum_and_diff_buffer_flag,\
+      END_SEND_CHECKSUM_AND_DIFF_TO_LOCAL_SIZE);
 
-    socket_receive(self->socket, checksum_and_diff_buffer_flag, END_SEND_CHECKSUM_AND_DIFF_TO_LOCAL_SIZE);
-    // printf("flag : %.*s \n", END_SEND_CHECKSUM_AND_DIFF_TO_LOCAL_SIZE, checksum_and_diff_buffer_flag);
-
-    if (is_checksum_flag_adding_to_new_local_diff(checksum_and_diff_buffer_flag)) {
-      // puts("agarre un diff");
-
+    if (is_checksum_flag_adding_to_new_local_diff\
+      (checksum_and_diff_buffer_flag)) {
       char diff_size_buffer[SEND_DIFF_BUFFER_TO_LOCAL_SIZE_SIZE];
 
-      socket_receive(self->socket, diff_size_buffer, SEND_DIFF_BUFFER_TO_LOCAL_SIZE_SIZE);
-      int diff_size = (int)strtol(diff_size_buffer, NULL, 16);
+      socket_receive(self->socket, diff_size_buffer,\
+        SEND_DIFF_BUFFER_TO_LOCAL_SIZE_SIZE);
+      int kDiffSize = (int)strtol(diff_size_buffer, NULL, 16);
 
-      char diff_buffer[diff_size];
+      char diff_buffer[kDiffSize];
+      socket_receive(self->socket, diff_buffer, kDiffSize);
 
-      socket_receive(self->socket, diff_buffer, diff_size);
-
-      file_checksum_parser_set_buffer_at_index(&file_checksum_parser, diff_buffer, diff_size, block_index);
-      block_index += diff_size;
+      file_checksum_parser_set_buffer_at_index(&file_checksum_parser,\
+        diff_buffer, kDiffSize, block_index);
+      block_index += kDiffSize;
     }
 
-    if (is_checksum_flag_adding_to_new_local_checksum(checksum_and_diff_buffer_flag)) {
+    if (is_checksum_flag_adding_to_new_local_checksum\
+      (checksum_and_diff_buffer_flag)) {
       // puts("agregue un checksum nuevo");
-      char checksum_buffer[SEND_CHECKSUM_INDEX_TO_LOCAL_FORMAT_SIZE - SEND_DIFF_BUFFER_TO_LOCAL_PROTOCOL_SIZE];
-      socket_receive(self->socket, checksum_buffer, SEND_CHECKSUM_INDEX_TO_LOCAL_FORMAT_SIZE - SEND_DIFF_BUFFER_TO_LOCAL_PROTOCOL_SIZE);
+      char checksum_buffer[SEND_CHECKSUM_INDEX_TO_LOCAL_FORMAT_SIZE - \
+      SEND_DIFF_BUFFER_TO_LOCAL_PROTOCOL_SIZE];
+      socket_receive(self->socket, checksum_buffer, \
+        SEND_CHECKSUM_INDEX_TO_LOCAL_FORMAT_SIZE - \
+        SEND_DIFF_BUFFER_TO_LOCAL_PROTOCOL_SIZE);
 
-      char old_file_buffer[atoi(self->block_size)];
+      char old_file_buffer[kBlockSize];
 
       int checksum_index = (int)strtol(checksum_buffer, NULL, 16);
 
       // printf("checksum index %d\n", checksum_index);
 
-      file_checksum_parser_get_buffer_from_block_index(&old_file_checksum_parser, old_file_buffer, checksum_index);
+      file_checksum_parser_get_buffer_from_block_index\
+      (&old_file_checksum_parser, old_file_buffer, checksum_index);
 
-      file_checksum_parser_set_buffer_at_index(&file_checksum_parser, old_file_buffer, atoi(self->block_size), block_index);
+      file_checksum_parser_set_buffer_at_index(&file_checksum_parser,\
+        old_file_buffer, atoi(self->block_size), block_index);
       block_index += atoi(self->block_size);
     }
 
-    if (is_checksum_flag_terminating_receive_checksums_and_diff(checksum_and_diff_buffer_flag)) {
+    if (is_checksum_flag_terminating_receive_checksums_and_diff\
+      (checksum_and_diff_buffer_flag)) {
       did_terminate_receive_checksums_and_diffs = true;
     }
-
   }
 
   file_checksum_parser_destroy(&file_checksum_parser);
   file_checksum_parser_destroy(&old_file_checksum_parser);
 
+  return 0;
 }
 
 int client_begin(client_t *self) {
@@ -126,9 +154,21 @@ int client_begin(client_t *self) {
   self->socket = &socket;
   socket_init(self->socket, self->port, self->hostname);
   socket_connect(self->socket);
+  //
+  // char new_blocksize[strlen(self->block_size)];
+  //
+  // snprintf(new_blocksize, strlen(self->block_size), "%s",self->block_size);
 
   /*Send new remote name with protocol*/
+
+  printf("%s\n", self->block_size);;
+
   client_send_filename_and_block_size(self);
+
+  puts("quiero ver si tincho tiene razon");
+  printf("%s\n", self->block_size);;
+
+  // self->block_size = new_blocksize;
 
   /*send all checksums with protocol*/
   client_send_checksums(self);

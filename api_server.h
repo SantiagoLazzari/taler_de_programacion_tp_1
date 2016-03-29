@@ -11,7 +11,6 @@ typedef struct server {
 
   char *new_remote_filename;
   char *block_size;
-
 } server_t;
 
 int server_init(server_t *self, char *port, vector_t *vector);

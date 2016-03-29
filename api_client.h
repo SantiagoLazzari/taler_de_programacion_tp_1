@@ -14,7 +14,13 @@ typedef struct client {
   socket_t *socket;
 } client_t;
 
-int client_init(client_t *self, char *hostname, char *port, char *old_local_filename, char *new_local_filename, char *new_remote_filename, char *block_size);
+int client_init(client_t *self,\
+  char *hostname,\
+  char *port,\
+  char *old_local_filename,\
+  char *new_local_filename,\
+  char *new_remote_filename,\
+  char *block_size);
 int client_begin(client_t *self);
 int client_destroy(client_t *self);
 

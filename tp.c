@@ -25,10 +25,11 @@
 #define CLIENT_ARGUMENT_BLOCK_SIZE argv[7]
 #define CLIENT_ARGUMENTS_COUNT 8
 
-#define STRING_1_IS_EQUAL_TO_STRING_2(string1, string2) !strcmp(string1, string2)
+#define STRING_1_IS_EQUAL_TO_STRING_2(s1, s2) !strcmp(s1, s2)
 
 int main(int argc, char *argv[]) {
-  if (STRING_1_IS_EQUAL_TO_STRING_2(CLIENT_PROGRAM_TYPE, ARGUMENT_PROGRAM_TYPE) && argc == CLIENT_ARGUMENTS_COUNT) {
+  if (STRING_1_IS_EQUAL_TO_STRING_2(CLIENT_PROGRAM_TYPE, ARGUMENT_PROGRAM_TYPE)\
+   && argc == CLIENT_ARGUMENTS_COUNT) {
     client_t client;
     client_init(&client, \
       CLIENT_ARGUMENT_HOSTNAME, \
@@ -39,7 +40,8 @@ int main(int argc, char *argv[]) {
       CLIENT_ARGUMENT_BLOCK_SIZE);
     client_begin(&client);
     client_destroy(&client);
-  } else if (STRING_1_IS_EQUAL_TO_STRING_2(SERVER_PROGRAM_TYPE, ARGUMENT_PROGRAM_TYPE) && argc == SERVER_ARGUMENTS_COUNT) {
+  } else if (STRING_1_IS_EQUAL_TO_STRING_2(SERVER_PROGRAM_TYPE,\
+     ARGUMENT_PROGRAM_TYPE) && argc == SERVER_ARGUMENTS_COUNT) {
     server_t server;
     vector_t vector;
     vector_init(&vector);

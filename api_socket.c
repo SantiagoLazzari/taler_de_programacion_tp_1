@@ -30,7 +30,8 @@ int socket_init(socket_t *self, char *port, char *host) {
      return 1;
   }
 
-  self->skt = socket(addrinfo->ai_family, addrinfo->ai_socktype, addrinfo->ai_protocol);
+  self->skt = socket(addrinfo->ai_family, addrinfo->ai_socktype,\
+    addrinfo->ai_protocol);
 
   if (self->skt == -1) {
      printf("Error: %s\n", strerror(errno));
@@ -65,19 +66,16 @@ int socket_send(socket_t *self, char *buf, int size) {
 
      if (s == 0) {
         is_the_socket_valid = false;
-     }
-     else if (s < 0) {
+     } else if (s < 0) {
         is_the_socket_valid = false;
-     }
-     else {
+     } else {
         sent += s;
      }
   }
 
   if (is_the_socket_valid) {
      return sent;
-  }
-  else {
+  } else {
      return -1;
   }
 
@@ -94,19 +92,16 @@ int socket_receive(socket_t *self, char *buf, int size) {
 
       if (s == 0) { // nos cerraron el socket :(
          is_the_socket_valid = false;
-      }
-      else if (s < 0) { // hubo un error >(
+      } else if (s < 0) { // hubo un error >(
          is_the_socket_valid = false;
-      }
-      else {
+      } else {
          received += s;
       }
    }
 
    if (is_the_socket_valid) {
       return received;
-   }
-   else {
+   } else {
       return -1;
    }
 
@@ -172,13 +167,12 @@ int socket_connect(socket_t *self) {
   bool are_we_connected = false;
   int s = 0;
 
-  for (ptr = self->addrinfo; ptr != NULL && are_we_connected == false; ptr = ptr->ai_next) {
+  for (ptr = self->addrinfo; ptr != NULL &&\
+    are_we_connected == false; ptr = ptr->ai_next) {
      self->skt = socket(ptr->ai_family, ptr->ai_socktype, ptr->ai_protocol);
      if (self->skt == -1) {
         printf("Error: %s\n", strerror(errno));
-     }
-
-     else {
+     } else {
         s = connect(self->skt, ptr->ai_addr, ptr->ai_addrlen);
         if (s == -1) {
            printf("Error: %s\n", strerror(errno));
